@@ -52,6 +52,8 @@ class IMDBReviewDataset(Dataset):
                 tokens = [token.text for token in self.tokenizer(text)]
                 rating = item[1].split('.')[0].split('_')[-1]
                 return (rating, tokens)
+            
+
 
 class BatchSamplerSimilarLength(Sampler):
     def __init__(self, dataset, batch_size, indicies=None, shuffle=True):
@@ -61,7 +63,7 @@ class BatchSamplerSimilarLength(Sampler):
         # indicies and lengths
         self.indicies = [(i, len(s[1])) for i, s in enumerate(dataset)]
 
-        if indicies is None:
+        if indicies is not None:
             self.indicies = torch.tensor(self.indicies)[indicies].tolist()
 
     def __iter__(self):
@@ -77,7 +79,8 @@ class BatchSamplerSimilarLength(Sampler):
         batches = [self.pooled_indices[i:i + self.batch_size] for i in range(0, len(self.pooled_indices), self.batch_size)]
 
         if self.shuffle:
-            random.shuffle
+            random.shuffle(batches)
+
         for batch in batches:
             yield batch
 
