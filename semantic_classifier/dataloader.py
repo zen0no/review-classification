@@ -36,9 +36,8 @@ class IMDBReviewDataset(Dataset):
 
         with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
             text = f.read()
-
             tokens = [token.text for token in self.tokenizer(text)]
-            rating = item.split('.')[0].split('_')[-1]
+            rating = item[1].split('.')[0].split('_')[-1]
 
             return (rating, tokens)
 
