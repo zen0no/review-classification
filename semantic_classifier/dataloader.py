@@ -87,7 +87,10 @@ class BatchSamplerSimilarLength(Sampler):
 
 
 def transform_label(label):
-    return F.one_hot(label, num_classes=10)
+    encoded = torch.zeros(10)
+    encoded[int(label) - 1] = 1
+    return encoded
+
 
 def collate_batch(batch):
     label_list, tokens_list = [], []
