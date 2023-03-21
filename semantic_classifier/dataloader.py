@@ -32,16 +32,26 @@ class IMDBReviewDataset(Dataset):
     
 
     def __getitem__(self, idx) -> Tuple:
-        item = self._classes_entry_list[idx]
+        if isinstance(idx, list):
+            items = []
+            for _id in idx:
+                item = self._classes_entry_list[_id]
 
-        with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
-            text = f.read()
-            tokens = [token.text for token in self.tokenizer(text)]
-            rating = item[1].split('.')[0].split('_')[-1]
+                with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
+                    text = f.read()
+                    tokens = [token.text for token in self.tokenizer(text)]
+                    rating = item[1].split('.')[0].split('_')[-1]
 
-            return (rating, tokens)
+                    items.append((rating, tokens))
+            return items
+        else:
+            item = self._classes_entry_list[idx]
 
-
+            with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
+                text = f.read()
+                tokens = [token.text for token in self.tokenizer(text)]
+                rating = item[1].split('.')[0].split('_')[-1]
+                return (rating, tokens)
 
 class BatchSamplerSimilarLength(Sampler):
     def __init__(self, dataset, batch_size, indicies=None, shuffle=True):
