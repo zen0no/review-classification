@@ -14,7 +14,7 @@ class ReviewClassifier(nn.Module):
 
     def forward(self, seq):
         out, (hidden, _) = self.encoder(self.embedding(seq))
-        preds = self.predictor = self.predictor(hidden.squeeze(0))
+        preds = self.predictor(hidden.squeeze(0))
 
         return F.softmax(preds)
     
