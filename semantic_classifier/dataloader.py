@@ -66,9 +66,10 @@ class IMDBReviewDataset(Dataset):
                 with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
                     text = f.read()
                     tokens = torch.LongTensor([self.vocab[token.text] for token in self.tokenizer(text)])
+                    class_mark = self.classes_label.index(item[0])
                     rating = item[1].split('.')[0].split('_')[-1]
 
-                    items.append((rating, tokens))
+                    items.append((rating, class_mark, tokens))
             return items
         else:
             item = self._classes_entry_list[idx]
@@ -76,6 +77,7 @@ class IMDBReviewDataset(Dataset):
             with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
                 text = f.read()
                 tokens = torch.LongTensor([self.vocab[token.text] for token in self.tokenizer(text)])
+                class_mark = self.classes_label.index(item[0])
                 rating = item[1].split('.')[0].split('_')[-1]
                 return (rating, tokens)
             
