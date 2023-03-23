@@ -124,10 +124,11 @@ def transform_label(label):
 
 
 def collate_batch(batch):
-    label_list, tokens_list = [], []
+    rating_list, label_list, tokens_list = [], [], []
 
-    for (_label, _tokens) in batch:
+    for (_rating, _label, _tokens) in batch:
+        rating_list.append(_rating)
         label_list.append(transform_label(_label))
         tokens_list.append(_tokens)
     
-    return torch.cat(label_list), pad_sequence(tokens_list)
+    return torch.cat(_rating), torch.cat(label_list), pad_sequence(tokens_list, padding_value=0)
