@@ -9,7 +9,7 @@ from spacy.lang.en import English
 from torchtext.vocab import Vocab, build_vocab_from_iterator
 
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 import random
 
@@ -24,7 +24,7 @@ class IMDBReviewDataset(Dataset):
 
         
 
-        self.classes_label = ['pos', 'neg']
+        self.classes_label = ['neg', 'pos']
 
         self._classes_entry_list = [(class_label, entry_name) for class_label in self.classes_label for entry_name in os.listdir(os.path.join(root_dir, class_label))]
 
@@ -57,10 +57,10 @@ class IMDBReviewDataset(Dataset):
         
     
 
-    def __getitem__(self, idx) -> Tuple:
-        if isinstance(idx, list):
-            items = []
-            for _id in idx:
+    def __getitems__(self, idx) -> List[Tuple]:
+        items = []
+
+        for _id in idx[0]:
                 item = self._classes_entry_list[_id]
 
                 with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
@@ -70,16 +70,17 @@ class IMDBReviewDataset(Dataset):
                     rating = item[1].split('.')[0].split('_')[-1]
 
                     items.append((rating, class_mark, tokens))
-            return items
-        else:
-            item = self._classes_entry_list[idx]
+        return items
 
-            with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
+    def __getitem__(self, idx) -> Tuple:
+        item = self._classes_entry_list[idx]
+
+        with open(os.path.join(self.root_dir, *item), encoding="utf-8") as f:
                 text = f.read()
                 tokens = torch.LongTensor([self.vocab[token.text] for token in self.tokenizer(text)])
                 class_mark = self.classes_label.index(item[0])
                 rating = item[1].split('.')[0].split('_')[-1]
-                return (rating, tokens)
+                return (rating, class_mark, tokens)
             
 
 
@@ -89,7 +90,7 @@ class BatchSamplerSimilarLength(Sampler):
         self.shuffle = shuffle
 
         # indicies and lengths
-        self.indicies = [(i, len(s[1])) for i, s in enumerate(dataset)]
+        self.indicies = [(i, len(s[2])) for i, s in enumerate(dataset)]
 
         if indicies is not None:
             self.indicies = torch.tensor(self.indicies)[indicies].tolist()
@@ -117,9 +118,9 @@ class BatchSamplerSimilarLength(Sampler):
     
 
 
-def transform_label(label):
+def transform_rating(rating):
     encoded = torch.zeros(10)
-    encoded[int(label) - 1] = 1
+    encoded[int(rating) - 1] = 1
     return encoded
 
 
@@ -127,8 +128,8 @@ def collate_batch(batch):
     rating_list, label_list, tokens_list = [], [], []
 
     for (_rating, _label, _tokens) in batch:
-        rating_list.append(_rating)
-        label_list.append(transform_label(_label))
+        rating_list.append(transform_rating(_rating))
+        label_list.append(_label)
         tokens_list.append(_tokens)
     
-    return torch.cat(_rating), torch.cat(label_list), pad_sequence(tokens_list, padding_value=0)
+    return torch.cat(rating_list), torch.tensor(label_list), pad_sequence(tokens_list, padding_value=0)
