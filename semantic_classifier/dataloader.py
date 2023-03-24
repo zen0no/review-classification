@@ -22,7 +22,7 @@ class IMDBReviewDataset(Dataset):
 
         self.tokenizer = nlp.tokenizer
 
-        
+        self.vocab = vocab        
 
         self.classes_label = ['neg', 'pos']
 

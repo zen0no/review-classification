@@ -4,7 +4,7 @@ from torchtext.vocab import Vocab, GloVe
 import torch.nn as nn
 import torch.nn.functional as F
 
-from semantic_classifier.utilts import create_embedding_weights
+from semantic_classifier.utils import create_embedding_weights
 
 
 
