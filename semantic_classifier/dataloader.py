@@ -15,7 +15,7 @@ import random
 
 
 class IMDBReviewDataset(Dataset):
-    def __init__(self, root_dir: str, vocab_path: str = None):
+    def __init__(self, root_dir: str, vocab: Vocab):
         self.root_dir = root_dir
 
         nlp = English()
@@ -27,35 +27,12 @@ class IMDBReviewDataset(Dataset):
         self.classes_label = ['neg', 'pos']
 
         self._classes_entry_list = [(class_label, entry_name) for class_label in self.classes_label for entry_name in os.listdir(os.path.join(root_dir, class_label))]
-
-        specials = ['<unk>', '<pad>']
-
-        if vocab_path is None:
-            self.vocab: Vocab = self._create_vocabulary(specials=specials)
         
-        else:
-            self.vocab: Vocab = self._import_vocabulary(vocab_path=vocab_path, specials=specials)
-
-        self.vocab.set_default_index(self.vocab['<unk>'])
-
+ 
 
     def __len__(self):
-        return len(self._classes_entry_list)
-    
+        return len(self._classes_entry_list)        
 
-    def _get_examples_token_iterator(self):        
-        for entry in self._classes_entry_list:
-            with open(os.path.join(self.root_dir, *entry), encoding='utf-8') as f: 
-                yield f.read()
-
-    def _create_vocabulary(self, specials):
-        return build_vocab_from_iterator(self._get_examples_token_iterator(), specials=specials)
-
-    def _import_vocabulary(self, vocab_path: str, specials):
-        with open(vocab_path, 'r', encoding='utf-8') as f:
-            return build_vocab_from_iterator(([x.rstrip('\n')] for x in f), specials=specials)
-        
-    
 
     def __getitems__(self, idx) -> List[Tuple]:
         items = []
