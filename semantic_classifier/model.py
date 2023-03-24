@@ -13,11 +13,8 @@ class ReviewClassifier(nn.Module):
         self.predictor = nn.Linear(hidden_size, 10)
 
     def forward(self, seq):
-        print(seq.shape)
         embedded = self.embedding(seq)
-        print(embedded.shape)
         out, (hidden, _) = self.encoder(embedded)
-        print(hidden.shape)
         preds = self.predictor(hidden.squeeze(0))
 
         return F.softmax(preds, dim=1)
