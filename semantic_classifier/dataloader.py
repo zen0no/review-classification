@@ -121,7 +121,7 @@ class BatchSamplerSimilarLength(Sampler):
 def transform_rating(rating):
     encoded = torch.zeros(10)
     encoded[int(rating) - 1] = 1
-    return encoded
+    return torch.unsqueeze(encoded, 0)
 
 
 def collate_batch(batch):
@@ -132,4 +132,4 @@ def collate_batch(batch):
         label_list.append(_label)
         tokens_list.append(_tokens)
     
-    return torch.cat(rating_list), torch.tensor(label_list), pad_sequence(tokens_list, padding_value=0)
+    return torch.cat(rating_list), torch.unsqueeze(torch.tensor(label_list), 1), pad_sequence(tokens_list, padding_value=0).transpose(0, 1)
