@@ -4,20 +4,17 @@ from torchtext.vocab import Vocab, GloVe, build_vocab_from_iterator
 
 
 def create_embedding_weights(vocab: Vocab, embed_dim=300):
-    glove = GloVe(name='6B', dim=embed_dim)
+    glove = GloVe(name='6B', dim=embed_dim, unk_init=torch.rand_like)
 
     matrix_len = len(vocab)
     weights = np.zeros((matrix_len, embed_dim))
 
-    for i, word in enumerate(vocab):
+
+    for i, word in enumerate(vocab.get_itos()):
         if word == '<pad>':
             weights[i] = np.zeros((embed_dim))
-            continue
-
-        try:
+        else:
             weights[i] = glove[word]
-        except KeyError:
-            weights[i] = np.random.normal(scale=0.6, size=(embed_dim))
     return torch.tensor(weights), (matrix_len, embed_dim)
 
 
