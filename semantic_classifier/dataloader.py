@@ -104,4 +104,4 @@ def collate_batch(batch):
         label_list.append(_label)
         tokens_list.append(_tokens)
     
-    return torch.unsqueeze(torch.tensor(rating_list), 1), torch.unsqueeze(torch.tensor(label_list), 1), pad_sequence(tokens_list, padding_value=0).transpose(0, 1)
+    return torch.unsqueeze(torch.tensor(rating_list), 1), torch.unsqueeze(torch.tensor(label_list), 1), pad_sequence(tokens_list, padding_value=1).transpose(0, 1)

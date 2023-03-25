@@ -1,6 +1,6 @@
 from torchtext.vocab import Vocab, GloVe
 
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -20,13 +20,26 @@ class ReviewClassifier(nn.Module):
         self.embedding.requires_grad = False
 
         self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_size, num_layers=1, batch_first=True, bidirectional=True)
-        self.linear = nn.Linear(hidden_size, 10)
+        self.linear = nn.Linear(hidden_size, 50)
+        self.out = nn.Linear(50, 10)
+
+
+
+        self.dropout = nn.Dropout(0.1)
+        self.softmax = nn.Softmax(1)
+        self.relu = nn.ReLU()
 
     def forward(self, seq):
         embedded = self.embedding(seq)
         out, (hidden, _) = self.lstm(embedded)
-        preds = self.linear(hidden.squeeze(0))
 
-        return F.softmax(preds, dim=1)
+        avg_pool = torch.mean(hidden, 0)
+        conc = self.relu(self.linear(avg_pool))
+        conc = self.dropout(conc)
+        
+        out = self.softmax(self.out(conc))
+
+
+        return out
     
     
