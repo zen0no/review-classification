@@ -19,6 +19,7 @@ def create_embedding_weights(vocab: Vocab, embed_dim=300):
 
 def load_vocab_from_text(path: str) -> Vocab:
     with open(path, 'r', encoding='utf-8') as f:
-        return build_vocab_from_iterator(([x.rstrip('\n')] for x in f), specials=['<unk>', '<pad>'])
+        vocab = build_vocab_from_iterator(([x.rstrip('\n')] for x in f), specials=['<unk>', '<pad>'])
+        vocab.set_default_index(vocab(['<unk>']))
     
 
