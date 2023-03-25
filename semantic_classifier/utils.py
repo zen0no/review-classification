@@ -10,6 +10,10 @@ def create_embedding_weights(vocab: Vocab, embed_dim=300):
     weights = np.zeros((matrix_len, embed_dim))
 
     for i, word in enumerate(vocab):
+        if word == '<pad>':
+            weights[i] = np.zeros((embed_dim))
+            continue
+
         try:
             weights[i] = glove[word]
         except KeyError:
