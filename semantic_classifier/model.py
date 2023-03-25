@@ -20,8 +20,8 @@ class ReviewClassifier(nn.Module):
         self.embedding.requires_grad = False
 
         self.lstm = nn.LSTM(input_size=embedding_dim, hidden_size=hidden_size, num_layers=1, batch_first=True, bidirectional=True)
-        self.linear = nn.Linear(hidden_size, 50)
-        self.out = nn.Linear(50, 10)
+        self.linear = nn.Linear(hidden_size * 4, 64)
+        self.out = nn.Linear(64, 10)
 
 
 
@@ -31,10 +31,14 @@ class ReviewClassifier(nn.Module):
 
     def forward(self, seq):
         embedded = self.embedding(seq)
-        out, (hidden, _) = self.lstm(embedded)
+        out, _ = self.lstm(embedded)
 
-        avg_pool = torch.mean(hidden, 0)
-        conc = self.relu(self.linear(avg_pool))
+        avg_pool = torch.mean(out, 1)
+        max_pool, _ = torch.max(out, dim=1)
+        
+        conc = torch.cat((avg_pool, max_pool), 1)
+
+        conc = self.relu(self.linear(conc))
         conc = self.dropout(conc)
         
         out = self.softmax(self.out(conc))
