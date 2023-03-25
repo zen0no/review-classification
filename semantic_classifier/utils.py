@@ -1,6 +1,11 @@
 import torch
+import gdown
+import os
 import numpy as np
 from torchtext.vocab import Vocab, GloVe, build_vocab_from_iterator
+
+import semantic_classifier
+from semantic_classifier.model import ReviewClassifier
 
 
 def create_embedding_weights(vocab: Vocab, embed_dim=300):
@@ -24,4 +29,18 @@ def load_vocab_from_text(path: str) -> Vocab:
         vocab.set_default_index(vocab['<unk>'])
         return vocab
     
+
+def load_classifier_model() -> ReviewClassifier:
+    url = 'https://drive.google.com/file/d/10h7iwdOki0LrCs6zhKAsWXtFmVjNlUoo/view?usp=sharing'
+    out_path = os.path.join(semantic_classifier.__path__[0], 'weights', 'model')
+    gdown.download(url, out_path, quiet=False,fuzzy=True)
+
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    vocab = load_vocab_from_text(os.path.join(semantic_classifier.__path__[0], 'vocab', 'imdb.vocab'))
+    w, _ = create_embedding_weights(vocab=vocab)
+    model = ReviewClassifier(w, hidden_size=100)
+    model.load_state_dict(torch.load(os.path.join(semantic_classifier.__path__[0], 'weights', 'model'), map_location=torch.device(device)))
+    
+    return model, vocab
 

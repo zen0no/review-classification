@@ -1,10 +1,6 @@
-from torchtext.vocab import Vocab, GloVe
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from semantic_classifier.utils import create_embedding_weights
 
 
 
